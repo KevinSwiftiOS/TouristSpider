@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        table {
+            width: 100%;
+            float: left;
+            table-layout:fixed;
+            width:500px;
+            border:1px solid #ccc;
+        }
+
+            table tr {
+                line-height: 25px;
+                border:1px solid #ccc;
+            }
+
+             table td {
+                border:1px solid #ccc;
+                text-align:center;
+            }
+            .MHover{
+                border:1px solid #ccc;
+                white-space:nowrap;
+                text-overflow:ellipsis;
+                overflow:hidden;
+            }
+    </style>
+</head>
+<body>
+<table>
+<tr>
+<th>姓名</th>
+<th>个性签名</th>
+<th>性别</th>
+</tr>
+<tr>
+<td>张国荣</td>
+<td>
+<div class="MHover">我就是我，是颜色不一样的烟火！</div>
+<div class="MALL">我就是我，是颜色不一样的烟火！</div>
+    <td href=# title="这里是显示的文字">hello</td>
+</td>
+<td>男</td>
+</tr>
+</table>
+</body>
+<script type="text/javascript" language="javascript" src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script>
+    $(document).ready(function () {
+            $(".MALL").hide();
+            $(".MHover").mouseover(function (e) {
+                $(this).next(".MALL").css({"position":"absolute","top":e.pageY+5,"left":e.pageX+5}).show();
+            });
+            $(".MHover").mousemove(function (e) {
+                $(this).next(".MALL").css({ "color": "fff", "position": "absolute", "opacity": "0.7", "background-color": "666", "top": e.pageY + 5, "left": e.pageX + 5 });
+            });
+            $(".MHover").mouseout(function () {
+                $(this).next(".MALL").hide();
+            });
+        });
+</script>
+</html>

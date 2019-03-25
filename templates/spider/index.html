@@ -1,0 +1,228 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>爬虫管理</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="{% static 'spider/bower_components/bootstrap/dist/css/bootstrap.min.css' %}" rel="stylesheet">
+
+    <!-- MetisMenu CSS -->
+    <link href="{% static 'spider/bower_components/metisMenu/dist/metisMenu.min.css' %}" rel="stylesheet">
+
+    <!-- DataTables CSS -->
+    <link href="{% static 'spider/bower_components/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.css' %}" rel="stylesheet">
+
+    <!-- DataTables Responsive CSS -->
+    <link href="{% static 'spider/bower_components/datatables-responsive/css/dataTables.responsive.css' %}" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="{% static 'spider/dist/css/sb-admin-2.css' %}" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="{% static 'spider/bower_components/font-awesome/css/font-awesome.min.css' %}" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="{% static 'spider/bower_components/bootstrap-toggle/css/bootstrap-toggle.min.css' %}">
+    <link rel="stylesheet" href="{% static 'spider/css/index.min.css' %}">
+    <link rel="stylesheet" href="{% static 'spider/dist/css/buttons.css' %}">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+
+    <div id="wrapper">
+
+        <div style="padding-left: 2%; padding-right: 2%">
+            <!-- /.row -->
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading"><h3 class="text-center">爬虫管理</h3>
+                        </div>
+                        <!-- /.panel-heading -->
+                        <div class="panel-body">
+                            <div class="dataTable_wrapper">
+                            <div class="global-btn clearfix">
+                                <div class="create-btn-div">
+                                  <a class="project-create btn btn-default btn-primary" href="/admin/spider/project/add/" target="_blank">创建爬虫</a>
+                                </div>
+                                {% ifequal project_health 'health' %}
+                                <div class="active-btn-div">
+                                    <a class="btn btn-lg btn-success" data-toggle="popover-success">运行状态</a>
+                                </div>
+                                {% else %}
+                                    <div class="active-btn-div">
+                                    <a class="btn btn-lg btn-danger" data-toggle="popover-error">运行状态</a>
+                                </div>
+                                {% endifequal %}
+                              </div>
+                                <table class="table table-striped table-bordered table-hover" id="dataTables-example">
+                                    <thead>
+                                        <tr>
+                                            <th>项目编号</th>
+                                            <th>项目名称</th>
+                                            <th>运行状态</th>
+                                            <th data-type="num">创建者</th>
+                                            <th data-type="num">数据统计</th>
+                                            <th data-type="num">执行操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for project in project_list %}
+                                      <tr data-name="{{ project.id }}">
+                                        <td class="project-group"><span class="editable editable-click editable-empty">{{ project.id }}</span></td>
+                                        <td class="project-name"><span>{{ project.name }}</span></td>
+                                        <td class="project-status">
+                                            {% ifequal project.status 'stop' %}
+                                                <input id="toggle-trigger{{ project.id }}" type="checkbox" onchange="toggleChange({{ project.id }})" data-toggle="toggle" data-on="开启" data-off="关闭" data-onstyle="success" data-offstyle="danger">
+                                            {% else %}
+                                                <input id="toggle-trigger{{ project.id }}" type="checkbox" onchange="toggleChange({{ project.id }})" checked data-toggle="toggle" data-on="开启" data-off="关闭" data-onstyle="success" data-offstyle="danger">
+                                            {% endifequal %}
+                                        </td>
+                                        <td class="project-progress progress-all">
+                                          <span>{{ project.editor }}</span>
+                                        </td>
+                                        <td class="project-progress progress-all">
+                                            <span id="project_statistics_{{ project.id }}">{{ project.statistics }}</span>
+{#                                            <button class="btn-circle" style="background: none; outline:0 none !important; blr:expression(this.onFocus=this.blur()); " title="刷新统计数据" onclick="refresh_project_statistics({{ project.id }})">↻</button>#}
+                                            <button class="button button-small button-glow button-border button-rounded button-primary button-circle", title="刷新统计数据" onclick="refresh_project_statistics({{ project.id }})">↻</button>
+                                        </td>
+                                        <td class="project-actions" >
+                                          <a class="btn btn-default btn-group-xs" target="_blank" href="/spider/runningresults?id={{ project.id }}">查看运行结果</a>
+                                          <a class="btn btn-default btn-group-xs" target="_blank" href="/spider/shopresults?id={{ project.id }}">查看爬虫数据</a>
+                                        </td>
+                                      </tr>
+                                    {% empty %}
+                                        <td>当前没有爬虫项目可运行!!!</td>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <!-- /.panel-body -->
+                    </div>
+                    <!-- /.panel -->
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+        </div>
+        <!-- /#page-wrapper -->
+
+    </div>
+    <!-- /#wrapper -->
+
+    <!-- jQuery -->
+    <script src="{% static 'spider/bower_components/jquery/dist/jquery.min.js' %}"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="{% static 'spider/bower_components/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+
+    <!-- Metis Menu Plugin JavaScript -->
+    <script src="{% static 'spider/bower_components/metisMenu/dist/metisMenu.min.js' %}"></script>
+
+    <!-- DataTables JavaScript -->
+    <script src="{% static 'spider/bower_components/datatables/media/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'spider/bower_components/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.min.js' %}"></script>
+    <script src="{% static 'spider/bower_components/bootstrap-toggle/js/bootstrap-toggle.min.js' %}"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="{% static 'spider/dist/js/sb-admin-2.js' %}"></script>
+
+    <!-- Page-Level Demo Scripts - Tables - Use for reference -->
+    <script>
+    $(document).ready(function() {
+        $('#dataTables-example').DataTable({
+                responsive: true
+        });
+    });
+    </script>
+    <script>
+        function toggleChange(id) {
+            project_status = '';
+            if($('#toggle-trigger'+id).prop("checked")){
+                project_status = 'start';
+            }else{
+                project_status = 'stop';
+            }
+            $.ajax({
+             type: "GET",
+             url: "/spider/status",
+             data: { status: project_status,id:id },
+             dataType: "json",
+             success: function(data){
+                 console.log(data)
+              }
+            });
+        }
+        $(function() {
+            $("[data-toggle='popover-error']").each(function() {
+                let element = $(this);
+                element.popover({
+                    trigger: 'manual',
+                    html: true,
+                    title: '错误提示',
+                    placement: 'bottom',
+                    content: {{ project_health_data |safe }}
+                }).on("mouseenter", function() {
+                    let _this = this;
+                    $(this).popover("show");
+                    $(this).siblings(".popover").on("mouseleave", function() {
+                        $(_this).popover('hide');
+                    });
+                }).on("mouseleave", function() {
+                    let _this = this;
+                    setTimeout(function() {
+                        if(!$(".popover:hover").length) {
+                            $(_this).popover("hide")
+                        }
+                    }, 100);
+                });
+            });
+            $("[data-toggle='popover-success']").each(function() {
+                let element = $(this);
+                element.popover({
+                    trigger: 'manual',
+                    html: true,
+                    title: '爬虫数据统计',
+                    placement: 'bottom',
+                    content: {{ project_statistics_data |safe }},
+                }).on("mouseenter", function() {
+                    let _this = this;
+                    $(this).popover("show");
+                    $(this).siblings(".popover").on("mouseleave", function() {
+                        $(_this).popover('hide');
+                    });
+                }).on("mouseleave", function() {
+                    let _this = this;
+                    setTimeout(function() {
+                        if(!$(".popover:hover").length) {
+                            $(_this).popover("hide")
+                        }
+                    }, 100);
+                });
+            });
+        });
+        function refresh_project_statistics(project_id) {
+            $.get("/spider/statistics",{'id':project_id}, function(ret){
+                $("#project_statistics_"+project_id).html(ret);
+            })
+        }
+    </script>
+
+</body>
+
+</html>
