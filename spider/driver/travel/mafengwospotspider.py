@@ -97,7 +97,7 @@ fl_comment1 = Fieldlist(
     Field(fieldname=FieldName.SHOP_NAME_SEARCH_KEY, css_selector='body > div.container > div.row.row-top > div > div.title > h1',
           second_css_selector='body > div.wrapper > div.col-main > div.m-box.m-details.clearfix > div.title.clearfix > div > h1',filter_func=get_shop_name_search_key,
           is_isolated=True, is_info=True),
-    Field(fieldname=FieldName.COMMENT_CONTENT, css_selector='p',is_info=False),
+    Field(fieldname=FieldName.COMMENT_CONTENT, css_selector='p',is_info=True),
     #有问题
     Field(fieldname=FieldName.COMMENT_SCORE, css_selector='span.s-star',attr='class',filter_func=get_comment_grade,is_info=False),
     Field(fieldname=FieldName.COMMENT_YEAR, css_selector='div.info.clearfix > span', filter_func=get_comment_year, is_info=False),

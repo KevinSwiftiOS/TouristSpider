@@ -15,6 +15,6 @@ time.sleep(40)
 dictCookies = driver.get_cookies()
 jsonCookies = json.dumps(dictCookies)
 # 登录完成后，将cookie保存到本地文件
-with open('/Users/caokaiqiang/Documents/dianping_cookies.json', 'w+') as f:
+with open('/home/lab421-ckq/dianping_cookies.json', 'w+') as f:
     f.write(jsonCookies)
     

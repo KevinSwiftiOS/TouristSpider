@@ -103,7 +103,7 @@ fl_comment1 = Fieldlist(
           filter_func=get_shop_name_search_key, is_info=True, is_isolated=True),
 #app > div > div.poi-rate-container > div:nth-child(2) > div.rate-content-container > div
 #app > div > div.poi-rate-container > div:nth-child(7) > div.rate-content-container > div
-    Field(fieldname=FieldName.COMMENT_CONTENT, css_selector='div.rate-content-container > div.rate-content.fold', is_info=False),
+    Field(fieldname=FieldName.COMMENT_CONTENT, css_selector='div.rate-content-container > div.rate-content.fold', is_info=True),
     Field(fieldname=FieldName.COMMENT_USER_NAME, css_selector='div.rate-info > div.avatar-info > div:nth-child(1) > div', is_info=True),
     #comment_grade有待商榷
     Field(fieldname=FieldName.COMMENT_SCORE, css_selector='div.rate-info > div.avatar-info > div:nth-child(2) > div.left > div > div', attr='innerHTML',filter_func=get_comment_grade, is_info=True),
@@ -119,7 +119,7 @@ fl_comment1 = Fieldlist(
     Field(fieldname=FieldName.DATA_REGION_SEARCH_KEY, css_selector='', filter_func=get_data_region_search_key,
           is_info=False),
 )
-page_comment_1 = Page(name='飞猪景点店铺评论列表页面', fieldlist=fl_comment1, listcssselector=ListCssSelector(list_css_selector='#app > div > div.poi-rate-container > div'), mongodb=Mongodb(db=TravelDriver.db, collection=TravelDriver.comments_collection), is_save=False)
+page_comment_1 = Page(name='飞猪景点店铺评论列表页面', fieldlist=fl_comment1, listcssselector=ListCssSelector(list_css_selector='#app > div > div.poi-rate-container > div'), mongodb=Mongodb(db=TravelDriver.db, collection=TravelDriver.comments_collection), is_save=True)
 
 
 class FliggySpotSpider(TravelDriver):
