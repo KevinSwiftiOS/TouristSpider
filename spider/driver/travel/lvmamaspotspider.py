@@ -87,7 +87,7 @@ fl_comment1 = Fieldlist(
     Field(fieldname=FieldName.COMMENT_TIME, css_selector='div.com-userinfo > p > em',is_info=True),
     Field(fieldname=FieldName.SHOP_NAME, css_selector='body > div.body_bg > div > div.overview > div.dtitle.clearfix > div > h1', is_isolated=True,is_info=True),
 Field(fieldname=FieldName.SHOP_NAME_SEARCH_KEY, css_selector='body > div.body_bg > div > div.overview > div.dtitle.clearfix > div > h1',filter_func=get_shop_name_search_key, is_isolated=True,is_info=True),
-    Field(fieldname=FieldName.COMMENT_CONTENT, css_selector='div.ufeed-content',is_info=False),
+    Field(fieldname=FieldName.COMMENT_CONTENT, css_selector='div.ufeed-content',is_info=True),
     Field(fieldname=FieldName.COMMENT_SCORE, css_selector='div.ufeed-info > p > span.ufeed-level > i',attr='data-level', regex=r'[^\d.]*',is_info=False),
     Field(fieldname=FieldName.COMMENT_YEAR, css_selector='div.com-userinfo > p > em', filter_func=get_comment_year,
           is_info=False),
