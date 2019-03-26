@@ -262,21 +262,10 @@ detail_fl_shop2 = Fieldlist(
 Field(fieldname=FieldName.SHOP_PRICE,
           css_selector='#avgPriceTitle', attr='innerHTML', filter_func=get_shop_price,
           is_info=True),
-# Field(fieldname=FieldName.SHOP_TASTE,
-#           css_selector='#comment_score > span:nth-child(1)', attr='innerHTML', filter_func=get_shop_taste,
-#           is_info=True),
-# Field(fieldname=FieldName.SHOP_ENV,
-#           css_selector='#comment_score > span:nth-child(2)', attr='innerHTML', filter_func=get_shop_taste,
-#           is_info=True),
-# Field(fieldname=FieldName.SHOP_SERVICE,
-#           css_selector='#comment_score > span:nth-child(3)', attr='innerHTML', filter_func=get_shop_taste,
-#           is_info=True),
+
 
 Field(fieldname=FieldName.SHOP_ADDRESS,css_selector='#top > script:nth-child(4)',is_info=True),
-# Field(fieldname=FieldName.SHOP_LNG,css_selector='#top > script:nth-child(4)',attr='text',filter_func=get_shop_lng, is_info=True),
-# Field(fieldname=FieldName.SHOP_LAT,css_selector='#top > script:nth-child(4)',attr='text',filter_func=get_shop_lat,is_info=True),
-# Field(fieldname=FieldName.SHOP_CATEGORY_NAME,css_selector='#top > script:nth-child(4)',attr='text',filter_func=get_shop_category_name,is_info=True),
-# Field(fieldname=FieldName.SHOP_FLAG,css_selector='#top > script:nth-child(4)',attr='text',filter_func=get_shop_flag,is_info=True)
+
 )
 
 
@@ -297,14 +286,15 @@ def get_comment_rate_tag(self, _str):
     return json.dumps(tag_list, ensure_ascii=False)
 
 def get_content(self, _str):
+
     p = PyQuery(_str)
     if p('div.review-words.Hide'):
 
         html = p('div.review-words.Hide').html().strip()
         try:
          str =  (get_target_text(html,
-                              open('/Users/caokaiqiang/Documents/TouristSpider/style.css', 'r').read(),
-                              codecs.open('/Users/caokaiqiang/Documents/TouristSpider/ie.svg', 'r',
+                              open('/Users/caokaiqiang/Documents/sourceTree/TouristSpider/style.css', 'r').read(),
+                              codecs.open('/Users/caokaiqiang/Documents/sourceTree/TouristSpider/zf.svg', 'r',
                                           encoding='utf-8').read()));
 
 
@@ -316,9 +306,10 @@ def get_content(self, _str):
         # 表明没有字符
         try:
          str = (get_target_text(html,
-                               open('/Users/caokaiqiang/Documents/TouristSpider/style.css', 'r').read(),
-                               codecs.open('/Users/caokaiqiang/Documents/TouristSpider/ie.svg', 'r',
+                               open('/Users/caokaiqiang/Documents/sourceTree/TouristSpider/style.css', 'r').read(),
+                               codecs.open('/Users/caokaiqiang/Documents/sourceTree/TouristSpider/zf.svg', 'r',
                                            encoding='utf-8').read()));
+
 
 
         except Exception:
@@ -391,7 +382,13 @@ def get_comment_user_name(self,_str):
         return html('span').filter('.name').text()
 
 def get_comment_type(self,_str):
-    return self.comment_types
+    grade = re.findall(r'([\d]{1,4})', _str)[0]
+    if(grade >= "3.0"):
+        return "好评";
+    elif(grade == "3.0"):
+        return "中评";
+    else:
+        return "差评";
 
 def get_comment_taste_score(self,_str):
     html = PyQuery(_str)
@@ -474,6 +471,7 @@ Field(fieldname=FieldName.SHOP_NAME_SEARCH_KEY, css_selector='#review-list > div
 #review-list > div.review-list-container > div.review-list-main > div.reviews-wrapper > div.reviews-items > ul > li:nth-child(26) > div.main-review > div.dper-info > span
     Field(fieldname=FieldName.COMMENT_USER_NAME, css_selector='div > div.dper-info',filter_func=get_comment_user_name, attr='innerHTML',is_info=True),
     Field(fieldname=FieldName.COMMENT_TIME, css_selector='div > div.misc-info.clearfix > span.time',filter_func=get_comment_time,is_info=True),
+
     Field(fieldname=FieldName.COMMENT_CONTENT, css_selector='div.main-review', attr='innerHTML',
           filter_func=get_content,is_info=True),
 
@@ -492,7 +490,7 @@ Field(fieldname=FieldName.SHOP_NAME_SEARCH_KEY, css_selector='#review-list > div
           is_info=False),
     Field(fieldname=FieldName.DATA_REGION_SEARCH_KEY, css_selector='', filter_func=get_data_region_search_key,
           is_info=False),
-    Field(fieldname=FieldName.COMMENT_TYPE,css_selector='',filter_func=get_comment_type,is_info=True),
+    Field(fieldname=FieldName.COMMENT_TYPE,css_selector='div > div.review-rank > span.sml-rank-stars',attr='class',filter_func=get_comment_type,is_info=True),
 
 
     Field(fieldname=FieldName.COMMENT_TASTE_SCORE, css_selector='div > div.review-rank',attr='innerHTML',filter_func=get_comment_taste_score,is_info=True),
@@ -583,31 +581,7 @@ class DianpingCanYingSpider(TravelDriver):
         time.sleep(20)
 
 
-    #获取店铺信息
-    def get_shop_detail(self):
-        self.fast_new_page(url="http://www.baidu.com");
-        shop_collcetion = Mongodb(db=TravelDriver.db, collection=TravelDriver.shop_collection,
 
-                                  host='localhost').get_collection()
-        shop_name_url_list = list()
-        for i in shop_collcetion.find(self.get_data_key()):
-            # if i.get('shop_url') and (i.get('shop_flag') == None or i.get("shop_flag") == "0" or i.get("shop_flag") == ""
-            #
-            # or( i.get("shop_comment_num") == 0 and i.get("shop_score") > 0)
-            # ):
-            if i.get("shop_test") == "1":
-                shop_name_url_list.append((i.get('shop_name'), i.get('shop_url')))
-        for i in range(len(shop_name_url_list)):
-            # self.fast_new_page(url='https://www.baidu.com');
-
-            self.info_log(data='第%s个,%s' % (i + 1, shop_name_url_list[i][0]))
-            self.fast_new_page(url=shop_name_url_list[i][1],is_scroll_to_bottom=True);
-            time.sleep(5)
-            data = self.from_fieldlist_get_data(page=detail_shop_2)
-            self.update_data_to_mongodb(shop_collcetion,
-                                        self.merge_dict(self.get_data_key(),
-                                                        {FieldName.SHOP_URL: shop_name_url_list[i][1]}), data)
-            self.close_curr_page();
 
 
     #获取经纬度和坐标
@@ -684,62 +658,7 @@ class DianpingCanYingSpider(TravelDriver):
             except Exception:
                 print("改地址无经纬度")
 
-    def get_update_category_comment(self):
 
-
-        shop_collcetion = Mongodb(db=TravelDriver.db, collection=TravelDriver.shop_collection,
-                                 ).get_collection()
-        shop_name_url_list = list()
-        for i in shop_collcetion.find(self.get_data_key()):
-            if i.get('shop_comment_url'):
-                shop_name_url_list.append((i.get('shop_name'),i.get('shop_comment_url')))
-        for i in range(len(shop_name_url_list)):
-         try:
-            self.info_log(data='第%s个,%s'%(i+1, shop_name_url_list[i][0]))
-
-            self.fast_new_page(url=shop_name_url_list[i][1],is_scroll_to_bottom=False)
-
-
-            time.sleep(5)
-
-
-
-            for i in range(1,11):
-
-             try:
-
-              time.sleep(5)
-              span = '#review-list > div.review-list-container > div.review-list-main > div.reviews-wrapper > div.reviews-tags > div.content > span:nth-child(' + str(
-                i) + ')';
-              link_text = self.driver.find_elements_by_css_selector(span)[0].text
-
-              self.comment_category = link_text
-
-              self.driver.find_element_by_link_text(link_text).click()
-              time.sleep(3)
-              ##随后进行点击标签和评阅
-              self.until_click_no_next_page_by_css_selector(nextpagesetup=NextPageCssSelectorSetup(
-                  css_selector='#review-list > div.review-list-container > div.review-list-main > div.reviews-wrapper > div.bottom-area.clearfix > div > a.NextPage',
-                  stop_css_selector='#review-list > div.review-list-container > div.review-list-main > div.reviews-wrapper > div.bottom-area.clearfix > div > a.NextPage.hidden',
-                  main_pagefunc=PageFunc(
-                      func=self.from_page_get_data_list,
-                      page=page_comment_2), pause_time=5))
-              self.vertical_scroll_by(offset=-10000);
-             except Exception:
-              self.comment_category = ''
-
-              self.until_click_no_next_page_by_partial_link_text(nextpagesetup=NextPageLinkTextSetup(link_text='下一页',
-                main_pagefunc=PageFunc(
-                    func=self.from_page_get_data_list,
-                    page=page_comment_2), pause_time=2))
-              self.vertical_scroll_by(offset=-10000);
-            self.close_curr_page()
-
-
-         except Exception:
-
-            print("无元素")
-            self.close_curr_page()
     def get_shop_good_middle_bad_comment(self):
         # self.fast_new_page(url='http://www.baidu.com')
         # shop_collcetion = Mongodb(db=TravelDriver.db, collection=TravelDriver.shop_collection,
@@ -753,9 +672,6 @@ class DianpingCanYingSpider(TravelDriver):
         #         shop_name_url_list.append((i.get('shop_name'),i.get('shop_comment_url')))
         # print(len(shop_name_url_list))
         # for i in range(len(shop_name_url_list)):
-
-
-
           try:
             # self.info_log(data='第%s个,%s' % (i + 1, shop_name_url_list[i][0]))
             # time.sleep(10)
@@ -764,81 +680,35 @@ class DianpingCanYingSpider(TravelDriver):
             time.sleep(20)
             self.fast_new_page(url="http://www.dianping.com/shop/19139636/review_all", is_scroll_to_bottom=False)
 
-            tags = ['filter-good','filter-middle','filter-bad'];
-            types = ['好评','中评','差评'];
-
-            for i in range(0,3):
-
-             span = '#review-list > div.review-list-container > div.review-list-main > div.reviews-wrapper > div.reviews-filter.clearfix > div.filters > label.filter-item.' + tags[i] +  '> a';
-
-             self.driver.find_element_by_css_selector(span).click()
-             time.sleep(20)
-             #time.sleep(30)
-             self.comment_types = types[i]
-
+            time.sleep(30)
+            # try:
+            #  self.driver.find_element_by_link_text(link_text='默认排序').click();
+            #  time.sleep(2)
+            #  self.driver.find_element_by_link_text(link_text='最新点评').click();
+            #  time.sleep(20)
+            # except Exception:
+            #     print("无最新点评")
 
                     ##随后进行点击标签和评阅
-             self.until_click_no_next_page_by_partial_link_text(nextpagesetup=NextPageLinkTextSetup(link_text='下一页',
+            self.until_click_no_next_page_by_partial_link_text(nextpagesetup=NextPageLinkTextSetup(link_text='下一页',
                         main_pagefunc=PageFunc(
                             func=self.from_page_get_data_list,
                             page=page_comment_1), pause_time=2))
-             self.vertical_scroll_by(offset=-10000);
+
             self.close_curr_page()
 
           except Exception:
             print("无元素")
             self.close_curr_page()
-    # def get_shop_phone(self):
-    #     self.fast_new_page(url='http://www.baidu.com');
-    #     shop_collcetion = Mongodb(db=TravelDriver.db, collection=TravelDriver.shop_collection,
-    #                               ).get_collection()
-    #     shop_name_url_list = list()
-    #     for i in shop_collcetion.find(self.get_data_key()):
-    #         if i.get('shop_comment_url'):
-    #             shop_name_url_list.append((i.get('shop_name'), i.get('shop_comment_url')))
-    #     for i in range(len(shop_name_url_list)):
-    #         try:
-    #             self.info_log(data='第%s个,%s' % (i + 1, shop_name_url_list[i][0]))
-    #
-    #             self.fast_new_page(url=shop_name_url_list[i][1], is_scroll_to_bottom=False)
-    #             time.sleep(3)
-    #             # self.driver.find_element_by_link_text(link_text='默认排序').click();
-    #             # time.sleep(2)
-    #             # self.driver.find_element_by_link_text(link_text='最新点评').click();
-    #             time.sleep(5)
-    #
-    #             # while (True):
-    #             #         self.is_ready_by_proxy_ip()
-    #             #         self.switch_window_by_index(index=-1)
-    #             #         self.deal_with_failure_page()
-    #             #         self.fast_new_page(url=shop_name_url_list[i][1])
-    #             #         time.sleep(1)
-    #             #         self.switch_window_by_index(index=-1)  # 页面选择
-    #             #         if '验证中心' in self.driver.title:
-    #             #               self.info_log(data='关闭验证页面!!!')
-    #             #               self.close_curr_page()
-    #             #         else:
-    #             #           break
-    #
-    #             self.until_click_no_next_page_by_css_selector(nextpagesetup=NextPageCssSelectorSetup(
-    #                 css_selector='#review-list > div.review-list-container > div.review-list-main > div.reviews-wrapper > div.bottom-area.clearfix > div > a.NextPage',
-    #                 stop_css_selector='#review-list > div.review-list-container > div.review-list-main > div.reviews-wrapper > div.bottom-area.clearfix > div > a.NextPage.hidden',
-    #                 main_pagefunc=PageFunc(
-    #                     func=self.from_page_get_data_list,
-    #                     page=page_comment_1), pause_time=5))
-    #             self.close_curr_page()
-    #
-    #         except Exception:
-    #             print("无元素")
+
     def run_spider(self):
         try:
-
             #self.login()
             #self.get_shop_info_list()
             #self.get_shop_detail()
             #self.get_shop_address()
             self.get_shop_good_middle_bad_comment()
-            #self.get_update_category_comment()
-            #self.update_shop_phone()
+
+
         except Exception:
             self.error_log(e='cookies失效!!!')

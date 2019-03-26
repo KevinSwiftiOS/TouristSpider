@@ -179,7 +179,7 @@ class Driver(object):
             driver = webdriver.Firefox(firefox_options=self.get_firefox_option())
             driver.set_page_load_timeout(30)
         else:
-            driver = webdriver.Chrome(chrome_options=self.get_chrome_options())
+            driver = webdriver.Chrome(chrome_options=self.get_chrome_options(),executable_path="/Users/caokaiqiang/Documents/sourceTree/TouristSpider/chromedriver")
             driver.set_page_load_timeout(30)
 
         return driver

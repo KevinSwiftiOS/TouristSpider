@@ -67,14 +67,14 @@ if p('div.review-words.Hide'):
     html = p('div.review-words.Hide').html().strip()
     print(html)
     print(get_target_text(html,
-                          open('/Users/caokaiqiang/Documents/TouristSpider/style.css', 'r').read(),
-                          codecs.open('/Users/caokaiqiang/Documents/TouristSpider/ie.svg', 'r',
+                          open('/home/lab421-ckq/文档/github /TouristSpider/style.css', 'r').read(),
+                          codecs.open('/home/lab421-ckq/文档/github /TouristSpider/zf.svg', 'r',
                                       encoding='utf-8').read()));
 else:
     print(222)
     html = p('div.review-words').html().strip()
     #表明没有字符
     print(get_target_text(html,
-                          open('/Users/caokaiqiang/Documents/TouristSpider/style.css', 'r').read(),
-                          codecs.open('/Users/caokaiqiang/Documents/TouristSpider/ie.svg', 'r',
+                          open('/home/lab421-ckq/文档/github /TouristSpider/style.css', 'r').read(),
+                          codecs.open('/home/lab421-ckq/文档/github /TouristSpider/zf.svg', 'r',
                                       encoding='utf-8').read()));

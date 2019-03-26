@@ -13,6 +13,7 @@ import re
 import random
 import datetime
 import math
+import codecs
 def get_shop_tag(self, _str):
     try:
         p = PyQuery(_str)
@@ -138,12 +139,80 @@ def get_comment_rate_tag(self, _str):
     for i in p('span.item').items():
         tag_list.append(i.text().strip())
     return json.dumps(tag_list, ensure_ascii=False)
+def get_target_text(_html_content, _css_content, _svg_content):
+    # 构建词典
+    height_text = {}
+    p = PyQuery(_svg_content)
+    # 格式1
+    try:
+        for item in p("path").items():
+            max_height = int(item.attr("d").split()[1])
+            text = p("textpath:nth-child(%s)" % item.attr("id")).text()
+            height_text[max_height] = text
+    except Exception:
+        pass
+    # 格式2
+    try:
+        for item in p("text").items():
+            max_height = int(item.attr("y"))
+            text = item.text()
+            height_text[max_height] = text
+    except Exception:
+        pass
 
-def get_comment_content(self, _str):
+    def get_single_text(_class_name):
+        """
+        获得目标词
+        """
+        # 查找class对应的属性
+        try:
+            x, y = \
+            re.findall("\.%s{background:[-]*([\d]+)[.]*[\d]+px [-]*([\d]+)[.]*[\d]+px;}" % _class_name, _css_content)[0]
+            x = int(x)
+            y = int(y)
+        except Exception:
+            return _class_name
+        # 获得目标的文字的高度列表
+        height_list = list(height_text.keys()) + [y]
+        height_list.sort()
+        # 获得目标文字
+        target_text = list(height_text[height_list[height_list.index(y) + 1]])[x // 14]
+        return target_text
 
+    # 获得解密后的评论
+    _html_content_list = PyQuery(re.sub(r"<[a-z]+ class=\"([a-zA-Z0-9]+)\"/>", r"|\1|", _html_content)).text().split("|")
+    for i in range(len(_html_content_list)):
+        _html_content_list[i] = get_single_text(_html_content_list[i])
+    return re.sub("收起评论.*$", "", "".join(_html_content_list)).replace("\n", "").strip()
+
+def get_content(self, _str):
     p = PyQuery(_str)
+    if p('div.review-words.Hide'):
 
-    return p.text()
+        html = p('div.review-words.Hide').html().strip()
+        try:
+         str =  (get_target_text(html,
+                              open('/home/lab421-ckq/文档/github /TouristSpider/style.css', 'r').read(),
+                              codecs.open('/home/lab421-ckq/文档/github /TouristSpider/zf.svg', 'r',
+                                          encoding='utf-8').read()));
+
+
+        except Exception:
+            str = "";
+    else:
+
+        html = p('div.review-words').html().strip()
+        # 表明没有字符
+        try:
+         str = (get_target_text(html,
+                               open('/home/lab421-ckq/文档/github /TouristSpider/style.css', 'r').read(),
+                               codecs.open('/home/lab421-ckq/文档/github /TouristSpider/zf.svg', 'r',
+                                           encoding='utf-8').read()));
+
+
+        except Exception:
+            str = "";
+    return str;
 
 def get_comment_time(self,_str):
 
@@ -195,7 +264,7 @@ Field(fieldname=FieldName.SHOP_NAME_SEARCH_KEY, css_selector='#review-list > div
 
     Field(fieldname=FieldName.COMMENT_USER_NAME, css_selector='div > div.dper-info > a',is_info=True),
     Field(fieldname=FieldName.COMMENT_TIME, css_selector='div > div.misc-info.clearfix > span.time',filter_func=get_comment_time,is_info=True),
-    Field(fieldname=FieldName.COMMENT_CONTENT, css_selector='div > div.review-truncated-words',attr='innerHTML',filter_func=get_comment_content, is_info=True),
+    Field(fieldname=FieldName.COMMENT_CONTENT, css_selector='div.main-review',attr='innerHTML',filter_func=get_content, is_info=True),
 
     Field(fieldname=FieldName.COMMENT_SCORE,css_selector='div > div.review-rank > span.sml-rank-stars',attr='class',filter_func=get_comment_grade, is_info=True),
     Field(fieldname=FieldName.COMMENT_YEAR, css_selector='div > div.misc-info.clearfix > span.time',
@@ -343,8 +412,8 @@ class DianpingSpotSpider(TravelDriver):
             self.driver.add_cookie(cookie)
         self.close_curr_page()
         self.fast_new_page(url='http://www.dianping.com')
-      #  self.fast_click_first_item_page_by_partial_link_text(link_text=self.data_website)
-        time.sleep(5)
+        # self.fast_click_first_item_page_by_partial_link_text(link_text=self.data_website)
+        time.sleep(2)
 
     def run_spider(self):
         try:

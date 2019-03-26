@@ -137,10 +137,10 @@ Field(fieldname=FieldName.COMMENT_MONTH, css_selector='div.header > div > span.d
           is_info=True),
 
 
-    Field(fieldname=FieldName.COMMENT_CONTENT, css_selector='div.desc.dt-item-des > div.desc-container > p', is_info=False),
+    Field(fieldname=FieldName.COMMENT_CONTENT, css_selector='div.desc.dt-item-des > div.desc-container > p', is_info=True),
 
     #comment_grade有待商榷
-    Field(fieldname=FieldName.COMMENT_SCORE, css_selector='div.header > div > span.username > p',filter_func=get_comment_score, is_info=False),
+    Field(fieldname=FieldName.COMMENT_SCORE, css_selector='div.header > div > span.username > p',filter_func=get_comment_score, is_info=True),
 
 )
 page_comment_1 = Page(name='途牛景点店铺评论列表页面', fieldlist=fl_comment1, listcssselector=ListCssSelector(list_css_selector='#J_app > div > div.page-body > div > div'), mongodb=Mongodb(db=TravelDriver.db, collection=TravelDriver.comments_collection), is_save=True)

@@ -107,7 +107,7 @@ Field(fieldname=FieldName.SHOP_NAME_SEARCH_KEY, css_selector='#main-page > div.m
 #app > div > div.poi-rate-container > div:nth-child(2) > div.rate-content-container > div
 #app > div > div.poi-rate-container > div:nth-child(7) > div.rate-content-container > div
 #main-page > div.mp-comment-mpcon > div:nth-child(3) > div.mpm-comment-info-outer.mpf-border-top > div > span:nth-child(1)
-    Field(fieldname=FieldName.COMMENT_CONTENT, css_selector='p', is_info=False),
+    Field(fieldname=FieldName.COMMENT_CONTENT, css_selector='p', is_info=True),
     Field(fieldname=FieldName.COMMENT_USER_NAME,
           css_selector='div.mpm-comment-info-outer.mpf-border-top > div > span:nth-child(1)', is_info=True),
     #comment_grade有待商榷
@@ -194,7 +194,7 @@ class QunarMobileSpotSpider(TravelDriver):
        for i in shop_collcetion.find(self.get_data_key()):
            if i.get('shop_comment_url'):
                shop_name_url_list.append((i.get('shop_name'), i.get('shop_comment_url')))
-
+       self.fast_new_page(url="https://www.baidu.com");
        for i in range(len(shop_name_url_list)):
            # 可能会有反爬
            self.info_log(data='第%s个,%s' % (i + 1, shop_name_url_list[i][0]))
@@ -205,8 +205,12 @@ class QunarMobileSpotSpider(TravelDriver):
            # main-page > header > h2 > div:nth-child(2)
            try:
                #查看是否有顶部按钮 有就点击
-             dianping = self.driver.find_element_by_css_selector(css_selector='#main-page > header > h2 > div:nth-child(2)')
-             self.fast_click_same_page_by_css_selector(click_css_selector='#main-page > header > h2 > div:nth-child(2)')
+
+              #若第一个不是点评 则需要点击第二个
+             print(10102);
+             print(self.driver.find_element_by_css_selector(css_selector='#main-page > header > h2 > div:nth-child(1)' ).text)
+             if(self.driver.find_element_by_css_selector(css_selector='#main-page > header > h2 > div:nth-child(1)' ).text!= '点评'):
+              self.fast_click_same_page_by_css_selector(click_css_selector='#main-page > header > h2 > div:nth-child(2)')
 
 
              time.sleep(6)
@@ -215,6 +219,7 @@ class QunarMobileSpotSpider(TravelDriver):
            #点击最新的
            try:
             new = self.driver.find_element_by_xpath('//li[@data-tagtype="44"]')
+
             ActionChains(self.driver).click(new).perform()
 
             time.sleep(5)
@@ -234,7 +239,7 @@ class QunarMobileSpotSpider(TravelDriver):
            self.fast_click_same_page_by_css_selector(click_css_selector='#main-page > div.mp-gotop > div')
            time.sleep(6)
            comment_data_list = self.from_page_get_data_list(page=page_comment_1)
-          # self.close_curr_page()
+           self.close_curr_page()
 
 
 
