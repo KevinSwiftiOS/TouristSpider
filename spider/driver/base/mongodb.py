@@ -14,9 +14,9 @@ class Mongodb(object):
         self.collection = collection
 
     def get_conn(self):
-        #return MongoClient("mongodb://lab421:lab421_1@10.1.17.25:27517/")
+        return MongoClient("mongodb://lab421:lab421_1@10.1.17.25:27517/")
         #return MongoClient("mongodb://lab421:lab421_1@120.55.59.187:28117/")
-        return MongoClient('localhost',27017)
+        #return MongoClient('localhost',27017)
     def get_db(self):
         return Database(self.get_conn(),self.db)
 

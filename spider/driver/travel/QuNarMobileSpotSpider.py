@@ -188,17 +188,19 @@ class QunarMobileSpotSpider(TravelDriver):
                                         self.merge_dict(self.get_data_key(), {FieldName.SHOP_URL: url}), data)
             self.close_curr_page()
     def get_comment_info_list(self):
+       self.fast_new_page(url="https://www.baidu.com");
        shop_collcetion = Mongodb(db=TravelDriver.db, collection=TravelDriver.shop_collection,
                                  host='localhost').get_collection()
        shop_name_url_list = list()
        for i in shop_collcetion.find(self.get_data_key()):
            if i.get('shop_comment_url'):
                shop_name_url_list.append((i.get('shop_name'), i.get('shop_comment_url')))
-       self.fast_new_page(url="https://www.baidu.com");
+
        for i in range(len(shop_name_url_list)):
            # 可能会有反爬
            self.info_log(data='第%s个,%s' % (i + 1, shop_name_url_list[i][0]))
            self.shop_name = shop_name_url_list[i][0]
+           self.fast_new_page(url="https://www.baidu.com");
            self.fast_new_page(url=shop_name_url_list[i][1])
            time.sleep(5)
 
@@ -207,7 +209,6 @@ class QunarMobileSpotSpider(TravelDriver):
                #查看是否有顶部按钮 有就点击
 
               #若第一个不是点评 则需要点击第二个
-             print(10102);
              print(self.driver.find_element_by_css_selector(css_selector='#main-page > header > h2 > div:nth-child(1)' ).text)
              if(self.driver.find_element_by_css_selector(css_selector='#main-page > header > h2 > div:nth-child(1)' ).text!= '点评'):
               self.fast_click_same_page_by_css_selector(click_css_selector='#main-page > header > h2 > div:nth-child(2)')
@@ -246,4 +247,5 @@ class QunarMobileSpotSpider(TravelDriver):
     def run_spider(self):
        #self.get_shop_info_list()
        #self.get_shop_detail()
+       self.data_region_search_key = self.get_data_region_search_key()
        self.get_comment_info_list()

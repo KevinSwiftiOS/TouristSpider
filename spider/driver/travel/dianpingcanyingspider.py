@@ -707,6 +707,7 @@ class DianpingCanYingSpider(TravelDriver):
             #self.get_shop_info_list()
             #self.get_shop_detail()
             #self.get_shop_address()
+            self.data_region_search_key = self.get_data_region_search_key()
             self.get_shop_good_middle_bad_comment()
 
 

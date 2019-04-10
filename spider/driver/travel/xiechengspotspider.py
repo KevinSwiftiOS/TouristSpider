@@ -193,7 +193,7 @@ fl_comment1 = Fieldlist(
     Field(fieldname=FieldName.SHOP_NAME, css_selector='div.main-bd > div > div.brief-box.clearfix > div.brief-right > h2', is_isolated=True),
 Field(fieldname=FieldName.SHOP_NAME_SEARCH_KEY,css_selector='div.main-bd > div > div.brief-box.clearfix > div.brief-right > h2',is_isolated=True,filter_func=get_shop_name_search_key, is_info=True),
     Field(fieldname=FieldName.COMMENT_CONTENT, css_selector='p',is_info=True),
-    Field(fieldname=FieldName.COMMENT_SCORE, css_selector='h4', regex=r'[^\d.]*',is_info=False),
+    Field(fieldname=FieldName.COMMENT_SCORE, css_selector='h4', regex=r'[^\d.]*',is_info=True),
     Field(fieldname=FieldName.COMMENT_YEAR,css_selector='div.user-date',filter_func=get_comment_year,is_info=False),
     Field(fieldname=FieldName.COMMENT_SEASON,css_selector='div.user-date',filter_func=get_comment_season,is_info=False),
     Field(fieldname=FieldName.COMMENT_MONTH,css_selector='div.user-date',filter_func=get_comment_month,is_info=False),
@@ -205,25 +205,6 @@ Field(fieldname=FieldName.SHOP_NAME_SEARCH_KEY,css_selector='div.main-bd > div >
 page_comment_1 = Page(name='携程景点评论列表', fieldlist=fl_comment1, listcssselector=ListCssSelector(list_css_selector='div.main-bd > div > div > div.detail-left > div.content-wrapper.clearfix > ul.comments > li'), mongodb=Mongodb(db=TravelDriver.db, collection=TravelDriver.comments_collection), is_save=True)
 
 class XiechengSpotSpider(TravelDriver):
-
-    def shop_detail_page_unfold(self):
-        try:
-            for i in self.until_presence_of_all_elements_located_by_partial_link_text(link_text='展开', timeout=1):
-                self.scroll_to_center(ele=i)
-                i.click()
-        except Exception:
-            pass
-
-    def get_shop_info(self):
-        try:
-            shop_data_list = self.from_page_get_data_list(page=page_shop_1)
-            # root > div > div > div > div > div:nth-child(3) > div.main-bd > div > div:nth-child(5) > div.detail-left > div.content-wrapper.clearfix > ul.pkg_page > a.down
-            # root > div > div > div > div > div:nth-child(3) > div.main-bd > div > div:nth-child(5) > div.detail-left > div.content-wrapper.clearfix > ul.pkg_page > a.down.disabled.nocurrent
-            nextpagesetup = NextPageCssSelectorSetup(css_selector='div.detail-left > div.content-wrapper.clearfix > ul.pkg_page > a.down', stop_css_selector='div.detail-left > div.content-wrapper.clearfix > ul.pkg_page > a.down.disabled.nocurrent', page=page_comment_1, pause_time=2)
-            extra_pagefunc = PageFunc(func=self.get_newest_comment_data_by_css_selector, nextpagesetup=nextpagesetup)
-            self.from_page_add_data_to_data_list(page=page_shop_2, pre_page=page_shop_1, data_list=shop_data_list,extra_pagefunc=extra_pagefunc)
-        except Exception as e:
-            self.error_log(e=str(e))
 
     def get_shop_info_list(self):
         self.driver.get('https://www.baidu.com')
@@ -243,26 +224,15 @@ class XiechengSpotSpider(TravelDriver):
                shop_name_url_list.append((i.get('shop_name'), i.get('shop_url')))
        for i in range(len(shop_name_url_list)):
            self.info_log(data='第%s个,%s' % (i + 1, shop_name_url_list[i][0]))
-           # while (True):
-           #     self.is_ready_by_proxy_ip()
-           #     self.switch_window_by_index(index=-1)
-           #     self.deal_with_failure_page()
-           #     self.fast_new_page(url=shop_name_url_list[i][1])
-           #     time.sleep(1)
-           #     self.switch_window_by_index(index=-1)  # 页面选择
-           #     if '请求数据错误' in self.driver.title:
-           #         self.info_log(data='关闭验证页面!!!')
-           #         self.close_curr_page()
-           #     else:
-           #         break
-           self.fast_new_page("http://piao.ctrip.com")
+           self.shop_name = shop_name_url_list[i][0]
+           self.fast_new_page(url="http://www.baidu.com");
            self.fast_new_page(url=shop_name_url_list[i][1])
            self.until_click_no_next_page_by_css_selector(nextpagesetup=NextPageCssSelectorSetup(
                css_selector='#root > div > div > div > div > div:nth-child(3) > div.main-bd > div > div:nth-child(5) > div.detail-left > div.content-wrapper.clearfix > ul.pkg_page > a.down',
                stop_css_selector='#root > div > div > div > div > div:nth-child(3) > div.main-bd > div > div:nth-child(5) > div.detail-left > div.content-wrapper.clearfix > ul.pkg_page > a.down.hidden',
                main_pagefunc=PageFunc(
                    func=self.from_page_get_data_list,
-                   page=page_comment_1), pause_time=5))
+                   page=page_comment_1), pause_time=2))
            self.close_curr_page();
     def run_spider(self):
         try:

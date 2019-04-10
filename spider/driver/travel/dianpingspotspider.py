@@ -251,8 +251,7 @@ def get_data_region_search_key(self, _str):
 
     return  self.data_region_search_key
 
-def get_shop_name_search_key(self,_str):
-    return self.get_shop_name_search_key(_str);
+
 def get_shop_name_search_key(self,_str):
 
     return self.shop_name_search_key(_str);
@@ -269,16 +268,16 @@ Field(fieldname=FieldName.SHOP_NAME_SEARCH_KEY, css_selector='#review-list > div
     Field(fieldname=FieldName.COMMENT_SCORE,css_selector='div > div.review-rank > span.sml-rank-stars',attr='class',filter_func=get_comment_grade, is_info=True),
     Field(fieldname=FieldName.COMMENT_YEAR, css_selector='div > div.misc-info.clearfix > span.time',
           filter_func=get_comment_year,
-          is_info=True),
+          is_info=False),
     Field(fieldname=FieldName.COMMENT_SEASON, css_selector='div > div.misc-info.clearfix > span.time',
           filter_func=get_comment_season,
-          is_info=True),
+          is_info=False),
     Field(fieldname=FieldName.COMMENT_MONTH, css_selector='div > div.misc-info.clearfix > span.time',
           filter_func=get_comment_month,
-          is_info=True),
+          is_info=False),
     Field(fieldname=FieldName.COMMENT_WEEK, css_selector='div > div.misc-info.clearfix > span.time',
           filter_func=get_comment_week,
-          is_info=True),
+          is_info=False),
     Field(fieldname=FieldName.DATA_REGION_SEARCH_KEY, css_selector='', filter_func=get_data_region_search_key,
           is_info=True),
     # Field(fieldname=FieldName.COMMENT_PIC_LIST, list_css_selector='div.main-review > div.review-pictures > ul', item_css_selector='li > a > img', attr='src', timeout=0),
@@ -325,7 +324,8 @@ class DianpingSpotSpider(TravelDriver):
         for i in range(len(shop_name_url_list)):
 
             self.info_log(data='第%s个,%s'%(i+1, shop_name_url_list[i][0]))
-
+            self.fast_new_page(url='http://www.baidu.com');
+            self.shop_name =  shop_name_url_list[i][0]
             self.fast_new_page(url=shop_name_url_list[i][1],is_scroll_to_bottom=False)
             time.sleep(3)
             self.driver.find_element_by_link_text(link_text='默认排序').click();
@@ -350,7 +350,7 @@ class DianpingSpotSpider(TravelDriver):
                 stop_css_selector='#review-list > div.review-list-container > div.review-list-main > div.reviews-wrapper > div.bottom-area.clearfix > div > a.NextPage.hidden',
                 main_pagefunc=PageFunc(
                     func=self.from_page_get_data_list,
-                    page=page_comment_1), pause_time=5))
+                    page=page_comment_1), pause_time=3))
             self.close_curr_page()
 
             # time_list = [i.get(FieldName.COMMENT_TIME) for i in nextpagesetup.page.mongodb.get_collection().find(
@@ -417,6 +417,7 @@ class DianpingSpotSpider(TravelDriver):
 
     def run_spider(self):
         try:
+            self.data_region_search_key = self.get_data_region_search_key()
             self.login()
             #self.get_shop_info_list()
             #self.get_shop_detail()

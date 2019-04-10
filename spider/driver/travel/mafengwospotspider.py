@@ -45,19 +45,14 @@ page_shop_1 = Page(name='马蜂窝景点店铺列表页面', fieldlist=fl_shop1,
 page_shop_2 = Page()
 page_shop_2 = Page(name='马蜂窝景点店铺详情页面', fieldlist=fl_shop2, tabsetup=TabSetup(click_css_selector='div > div.ct-text > h3 > a'), mongodb=Mongodb(db=TravelDriver.db,collection=TravelDriver.shop_collection))
 
-
-
-
 def get_comment_grade(self,_str):
     return str(_str[-1])
 def get_comment_time(self,_str):
     #时间格式统一为2018-12-08
-
     return _str[0:10]
 def get_comment_year(self,_str):
     time = _str[0:10]
     return time[0:4];
-
 def get_comment_season(self, _str):
     time = _str[0:10]
     times = time.split('-');
@@ -99,7 +94,7 @@ fl_comment1 = Fieldlist(
           is_isolated=True, is_info=True),
     Field(fieldname=FieldName.COMMENT_CONTENT, css_selector='p',is_info=True),
     #有问题
-    Field(fieldname=FieldName.COMMENT_SCORE, css_selector='span.s-star',attr='class',filter_func=get_comment_grade,is_info=False),
+    Field(fieldname=FieldName.COMMENT_SCORE, css_selector='span.s-star',attr='class',filter_func=get_comment_grade,is_info=True),
     Field(fieldname=FieldName.COMMENT_YEAR, css_selector='div.info.clearfix > span', filter_func=get_comment_year, is_info=False),
     Field(fieldname=FieldName.COMMENT_SEASON, css_selector='div.info.clearfix > span', filter_func=get_comment_season,
           is_info=False),
@@ -115,37 +110,41 @@ page_comment_1 = Page(name='马蜂窝景点评论列表', fieldlist=fl_comment1,
 
 class MafengwoSpotSpider(TravelDriver):
 
+    def get_shop_comment(self):
+        self.fast_new_page(url="http://www.baidu.com");
+        shop_collcetion = Mongodb(db=TravelDriver.db, collection=TravelDriver.shop_collection,
+                                  host='localhost').get_collection()
+        shop_name_url_list = list()
+        for i in shop_collcetion.find(self.get_data_key()):
+            if i.get('shop_url'):
+                shop_name_url_list.append((i.get('shop_name'), i.get('shop_url')))
+        for i in range(len(shop_name_url_list)):
+            self.info_log(data='第%s个,%s' % (i + 1, shop_name_url_list[i][0]));
+            self.shop_name = shop_name_url_list[i][0];
+            self.fast_new_page(url="http://www.baidu.com");
+            self.fast_new_page(url=shop_name_url_list[i][1])
+            self.until_click_no_next_page_by_partial_link_text(nextpagesetup=NextPageLinkTextSetup(
+                link_text="后一页",
+                main_pagefunc=PageFunc(
+                    func=self.from_page_get_data_list,
+                    page=page_comment_1), pause_time=2))
+            self.close_curr_page();
 
-
-    def get_shop_info(self):
-        try:
-            shop_data_list = self.from_page_get_data_list(page=page_shop_1)
-
-
-            nextpagesetup = NextPageCssSelectorSetup(
-                css_selector='div._j_commentlist > div.m-pagination > a.pi.pg-next'
-                             ,
-                stop_css_selector='div._j_commentlist > div.m-pagination > a.pi.pg-next.hidden',
-                page=page_comment_1, pause_time=2)
-            extra_pagefunc = PageFunc(func=self.get_newest_comment_data_by_css_selector, nextpagesetup=nextpagesetup)
-            self.from_page_add_data_to_data_list(page=page_shop_2, pre_page=page_shop_1, data_list=shop_data_list,extra_pagefunc=extra_pagefunc
-                                                )
-        except Exception as e:
-            self.error_log(e=str(e))
-    def get_shop_info_list(self):
-        self.fast_get_page('http://www.mafengwo.cn/', is_max=False)
-        time.sleep(2)
-        self.until_send_text_by_css_selector(css_selector='#_j_index_search_input_all', text=self.data_region)
-        self.until_send_enter_by_css_selector(css_selector='#_j_index_search_input_all')
-        self.fast_click_first_item_same_page_by_partial_link_text('景点')
-        self.fast_click_page_by_css_selector('#_j_mfw_search_main > div.s-nav > div > div > a:nth-child(4)')
-        time.sleep(1)
-
-        self.vertical_scroll_to()  # 滚动到页面底部
-        self.until_click_no_next_page_by_partial_link_text(
-            nextpagesetup=NextPageLinkTextSetup(link_text="下一页", main_pagefunc=PageFunc(func=self.get_shop_info)))
+    # def get_shop_info_list(self):
+    #     self.fast_get_page('http://www.mafengwo.cn/', is_max=False)
+    #     time.sleep(2)
+    #     self.until_send_text_by_css_selector(css_selector='#_j_index_search_input_all', text=self.data_region)
+    #     self.until_send_enter_by_css_selector(css_selector='#_j_index_search_input_all')
+    #     self.fast_click_first_item_same_page_by_partial_link_text('景点')
+    #     self.fast_click_page_by_css_selector('#_j_mfw_search_main > div.s-nav > div > div > a:nth-child(3)')
+    #     time.sleep(1)
+    #
+    #     self.vertical_scroll_to()  # 滚动到页面底部
+    #     self.until_click_no_next_page_by_partial_link_text(
+    #         nextpagesetup=NextPageLinkTextSetup(link_text="后一页", main_pagefunc=PageFunc(func=self.get_shop_info)))
     def run_spider(self):
         try:
-            self.get_shop_info_list()
+            self.data_region_search_key = self.get_data_region_search_key()
+            self.get_shop_comment()
         except Exception:
             self.error_log()

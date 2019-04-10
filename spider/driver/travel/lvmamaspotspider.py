@@ -88,7 +88,7 @@ fl_comment1 = Fieldlist(
     Field(fieldname=FieldName.SHOP_NAME, css_selector='body > div.body_bg > div > div.overview > div.dtitle.clearfix > div > h1', is_isolated=True,is_info=True),
 Field(fieldname=FieldName.SHOP_NAME_SEARCH_KEY, css_selector='body > div.body_bg > div > div.overview > div.dtitle.clearfix > div > h1',filter_func=get_shop_name_search_key, is_isolated=True,is_info=True),
     Field(fieldname=FieldName.COMMENT_CONTENT, css_selector='div.ufeed-content',is_info=True),
-    Field(fieldname=FieldName.COMMENT_SCORE, css_selector='div.ufeed-info > p > span.ufeed-level > i',attr='data-level', regex=r'[^\d.]*',is_info=False),
+    Field(fieldname=FieldName.COMMENT_SCORE, css_selector='div.ufeed-info > p > span.ufeed-level > i',attr='data-level', regex=r'[^\d.]*',is_info=True),
     Field(fieldname=FieldName.COMMENT_YEAR, css_selector='div.com-userinfo > p > em', filter_func=get_comment_year,
           is_info=False),
     Field(fieldname=FieldName.COMMENT_SEASON, css_selector='div.com-userinfo > p > em', filter_func=get_comment_season,
@@ -132,29 +132,19 @@ class LvmamaSpotSpider(TravelDriver):
                 shop_name_url_list.append((i.get('shop_name'), i.get('shop_url')))
         for i in range(len(shop_name_url_list)):
             self.info_log(data='第%s个,%s'%(i+1, shop_name_url_list[i][0]))
-            # while (True):
-            #     self.is_ready_by_proxy_ip()
-            #     self.switch_window_by_index(index=-1)
-            #     self.deal_with_failure_page()
-            #     self.fast_new_page(url=shop_name_url_list[i][1])
-            #     time.sleep(1)
-            #     self.switch_window_by_index(index=-1)  # 页面选择
-            #     if '请求数据错误' in self.driver.title:
-            #         self.info_log(data='关闭验证页面!!!')
-            #         self.close_curr_page()
-            #     else:
-            #         break
+            self.shop_name = shop_name_url_list[i][0];
             self.fast_new_page("http://www.baidu.com")
             self.fast_new_page(url=shop_name_url_list[i][1])
             self.until_click_no_next_page_by_css_selector(nextpagesetup=NextPageCssSelectorSetup(css_selector='#allCmtComment > div.paging.orangestyle > div > a.nextpage',stop_css_selector='#allCmtComment > div.paging.orangestyle > div > a.nextpage.hidden',
                                                                                                    main_pagefunc=PageFunc(
                                                                                                        func=self.from_page_get_data_list,
-                                                                                                       page=page_comment_1),pause_time=5))
+                                                                                                       page=page_comment_1),pause_time=2))
             self.close_curr_page();
 
     def run_spider(self):
         try:
             #self.get_shop_info_list()
+            self.data_region_search_key = self.get_data_region_search_key()
             self.get_comment_list()
 
         except Exception as e:

@@ -163,6 +163,7 @@ class FliggySpotSpider(TravelDriver):
         for i in range(len(shop_name_url_list)):
             #可能会有反爬
             self.info_log(data='第%s个,%s' % (i + 1, shop_name_url_list[i][0]))
+            self.fast_new_page('http://www.baidu.com')
             self.fast_new_page(url=shop_name_url_list[i][1])
             self.shop_name =  shop_name_url_list[i][0]
             comment_data_list = self.from_page_get_data_list(page=page_comment_1)
@@ -200,6 +201,7 @@ class FliggySpotSpider(TravelDriver):
         self.login();
         #self.get_shop_info_list()
         #self.get_shop_detail()
+        self.data_region_search_key  =self.get_data_region_search_key()
         self.get_comment_info_list()
 
 

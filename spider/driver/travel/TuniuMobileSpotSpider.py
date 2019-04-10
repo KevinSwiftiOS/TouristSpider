@@ -155,6 +155,7 @@ class TuniuMobileSpotSpider(TravelDriver):
 
 
     def get_comment_info_list(self):
+       self.fast_new_page(url='http://www.baidu.com');
        shop_collcetion = Mongodb(db=TravelDriver.db, collection=TravelDriver.shop_collection,
                                  host='localhost').get_collection()
        shop_name_url_list = list()
@@ -175,11 +176,14 @@ class TuniuMobileSpotSpider(TravelDriver):
            self.until_click_no_next_page_by_partial_link_text(nextpagesetup=NextPageLinkTextSetup(link_text='下一页',
                main_pagefunc=PageFunc(
                    func=self.from_page_get_data_list,
-                   page=page_comment_1), pause_time=5))
+                   page=page_comment_1), pause_time=2))
            self.close_curr_page()
 
 
     def run_spider(self):
+        try:
        #self.get_shop_info_list()
-
-       self.get_comment_info_list()
+          self.data_region_search_key = self.get_data_region_search_key()
+          self.get_comment_info_list()
+        except Exception:
+            self.error_log(e='加载失败!!!')
